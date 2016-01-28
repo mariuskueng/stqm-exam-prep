@@ -1,0 +1,7 @@
+<dataset>
+    <table name="movies">
+        <column>id</column>
+        <column>title</column>
+        <column>pricecategory</column>
+    </table>
+</dataset>
