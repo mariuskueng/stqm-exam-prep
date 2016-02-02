@@ -1,5 +1,11 @@
 <dataset>
-    <movies id="1"
+    <movies id="1234"
              title="The Room"
-             pricecategory="0"/>
+             pricecategory="1"/>
+    <movies id="2000"
+            title="Star Wars – The Force Awakens"
+            pricecategory="3"/>
+    <movies id="3000"
+            title="Ice Age"
+            pricecategory="2"/>
 </dataset>

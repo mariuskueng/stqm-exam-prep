@@ -1,25 +1,41 @@
 package ch.fhnw.edu.rental.data;
 
-import junit.framework.TestCase;
-import org.dbunit.IDatabaseTester;
-import org.dbunit.JdbcDatabaseTester;
-import org.dbunit.dataset.IDataSet;
-import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.xml.sax.InputSource;
+import static org.dbunit.Assertion.assertEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
+import java.util.List;
+
+import ch.fhnw.edu.rental.model.Movie;
+import ch.fhnw.edu.rental.model.NewReleasePriceCategory;
+import ch.fhnw.edu.rental.model.PriceCategory;
+import com.sun.org.apache.xpath.internal.operations.Bool;
+import org.dbunit.DatabaseUnitException;
+import org.dbunit.IDatabaseTester;
+import org.dbunit.JdbcDatabaseTester;
+import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ITable;
+import org.dbunit.dataset.xml.FlatXmlDataSetBuilder;
+import org.dbunit.dataset.xml.XmlDataSet;
+import org.dbunit.operation.DatabaseOperation;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.xml.sax.InputSource;
 
 /**
  * Created by mariuskueng on 28.01.16.
  */
-public class SQLMovieDaoTest extends TestCase {
+public class SQLMovieDaoTest {
 
     private IDatabaseTester tester;
     private Connection connection;
@@ -78,23 +94,69 @@ public class SQLMovieDaoTest extends TestCase {
         tester.onTearDown();
     }
 
+    @Test(expected = RuntimeException.class)
     public void testDelete() throws Exception {
+        MovieDAO dao = new SQLMovieDAO(connection);
+        List<Movie> movielist = dao.getByTitle("The Room");
+        Movie theRoom = movielist.get(1);
 
+        // delete non-existing movie
+        dao.delete(new Movie("The Hateful Eight", NewReleasePriceCategory.getInstance()));
+        assertEquals(1, dao.getByTitle("The Room").size());
+
+        // delete the room
+        dao.delete(theRoom);
+        assertEquals(0, dao.getByTitle("The Room").size());
+
+        // provoke SQLException
+        connection.close();
+        dao.getByTitle("The Room");
     }
 
+    @Test(expected = RuntimeException.class)
     public void testGetAll() throws Exception {
+        MovieDAO dao = new SQLMovieDAO(connection);
+        List<Movie> allMovies = dao.getAll();
 
+        assertEquals(3, allMovies.size());
     }
 
+    @Test(expected = RuntimeException.class)
     public void testGetById() throws Exception {
+        MovieDAO dao = new SQLMovieDAO(connection);
+        List<Movie> movielist = dao.getByTitle("The Room");
+        assertEquals(1000, movielist.get(1).getId());
 
+        // provoke SQLException
+        connection.close();
+        dao.getByTitle("The Room");
     }
 
+    @Test(expected = RuntimeException.class)
     public void testGetByTitle() throws Exception {
+        MovieDAO dao = new SQLMovieDAO(connection);
+        List<Movie> movielist = dao.getByTitle("The Room");
+        assertEquals("The Room", movielist.get(1).getTitle());
 
+        // provoke SQLException
+        connection.close();
+        dao.getByTitle("The Room");
     }
 
+    @Test(expected = RuntimeException.class)
     public void testSaveOrUpdate() throws Exception {
+        MovieDAO dao = new SQLMovieDAO(connection);
+        List<Movie> movielist = dao.getByTitle("The Room");
+        Movie theRoom = movielist.get(1);
+        assertEquals("The Room", theRoom.getTitle());
 
+        theRoom.setTitle("The Room 2");
+        dao.saveOrUpdate(theRoom);
+
+        assertEquals("The Room 2", dao.getByTitle("The Room").get(1).getTitle());
+
+        // provoke SQLException
+        connection.close();
+        dao.getByTitle("The Room");
     }
 }
