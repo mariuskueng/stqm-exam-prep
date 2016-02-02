@@ -7,3 +7,4 @@
 - [Arquillian Tutorial Example App](./arquillian-tutorial)
 
 ## le12-DbTesting
+- [MRS App](./MRS)
